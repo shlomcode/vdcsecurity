@@ -1,0 +1,1120 @@
+<!DOCTYPE html>
+<html lang="it" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VDC-SECURITY | Enterprise Cyber Defense</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --neon-cyan: #00f3ff;
+            --neon-purple: #bc13fe;
+            --deep-space: #050508;
+            --grid-color: rgba(0, 243, 255, 0.03);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--deep-space);
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+        
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0f; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple)); border-radius: 4px; }
+        
+        /* Glitch Effect */
+        .glitch {
+            position: relative;
+            animation: glitch-skew 3s infinite linear alternate-reverse;
+        }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .glitch::before {
+            left: 2px;
+            text-shadow: -2px 0 var(--neon-purple);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim 5s infinite linear alternate-reverse;
+        }
+        .glitch::after {
+            left: -2px;
+            text-shadow: -2px 0 var(--neon-cyan);
+            clip: rect(44px, 450px, 56px, 0);
+            animation: glitch-anim2 5s infinite linear alternate-reverse;
+        }
+        
+        @keyframes glitch-anim {
+            0% { clip: rect(31px, 9999px, 94px, 0); }
+            20% { clip: rect(6px, 9999px, 14px, 0); }
+            40% { clip: rect(89px, 9999px, 44px, 0); }
+            60% { clip: rect(12px, 9999px, 59px, 0); }
+            80% { clip: rect(68px, 9999px, 23px, 0); }
+            100% { clip: rect(55px, 9999px, 87px, 0); }
+        }
+        @keyframes glitch-anim2 {
+            0% { clip: rect(65px, 9999px, 99px, 0); }
+            20% { clip: rect(23px, 9999px, 45px, 0); }
+            40% { clip: rect(78px, 9999px, 12px, 0); }
+            60% { clip: rect(34px, 9999px, 67px, 0); }
+            80% { clip: rect(91px, 9999px, 34px, 0); }
+            100% { clip: rect(12px, 9999px, 78px, 0); }
+        }
+        
+        /* Grid Background */
+        .cyber-grid {
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: grid-move 20s linear infinite;
+        }
+        @keyframes grid-move {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+        
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+        
+        /* Neon Glow */
+        .neon-text {
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5), 0 0 20px rgba(0, 243, 255, 0.3);
+        }
+        .neon-border {
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3), inset 0 0 20px rgba(0, 243, 255, 0.1);
+        }
+        
+        /* Scan Line */
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scan 3s linear infinite;
+            opacity: 0.5;
+        }
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100vh); }
+        }
+        
+        /* Card Hover Effects */
+        .service-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        .service-card:hover {
+            transform: translateY(-10px) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(0, 243, 255, 0.2);
+        }
+        
+        /* Binary Rain Canvas */
+        #binary-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.15;
+        }
+        
+        /* Custom Cursor */
+        .custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-cyan);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.1s;
+            mix-blend-mode: difference;
+        }
+        .cursor-dot {
+            width: 4px;
+            height: 4px;
+            background: var(--neon-cyan);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+        
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--deep-space);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .loader-bar {
+            width: 200px;
+            height: 2px;
+            background: rgba(255,255,255,0.1);
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .loader-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+            animation: load 2s ease-out forwards;
+        }
+        @keyframes load {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* Typing Effect */
+        .typing-text::after {
+            content: '|';
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Threat Map Pulse */
+        .threat-pulse {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(239, 68, 68, 0.5);
+            animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+        }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.33); opacity: 1; }
+            80%, 100% { transform: scale(2); opacity: 0; }
+        }
+        
+        /* Navigation Blur */
+        .nav-blur {
+            background: rgba(5, 5, 8, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        /* Section Reveal */
+        .reveal-section {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #00f3ff 0%, #bc13fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-cyan-500 selection:text-black">
+
+    <!-- Loading Screen -->
+    <div class="loader" id="loader">
+        <div class="font-mono text-cyan-400 text-xl tracking-widest">INITIALIZING SECURITY PROTOCOLS</div>
+        <div class="loader-bar">
+            <div class="loader-progress"></div>
+        </div>
+        <div class="font-mono text-xs text-gray-500 mt-2" id="loader-text">Loading modules...</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="custom-cursor hidden md:block" id="cursor"></div>
+    <div class="cursor-dot hidden md:block" id="cursor-dot"></div>
+
+    <!-- Binary Rain Background -->
+    <canvas id="binary-canvas"></canvas>
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 nav-blur transition-all duration-300" id="navbar">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <div class="flex items-center space-x-2 group cursor-pointer">
+                    <div class="w-10 h-10 relative">
+                        <div class="absolute inset-0 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-lg transform rotate-45 group-hover:rotate-90 transition-transform duration-500"></div>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                    <span class="font-bold text-xl tracking-wider text-white group-hover:text-cyan-400 transition-colors">NEXUS<span class="text-cyan-400">SEC</span></span>
+                </div>
+                
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="#services" class="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors relative group">
+                        Servizi
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#threats" class="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors relative group">
+                        Threat Intelligence
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#solutions" class="text-sm font-medium text-gray-300 hover:text-cyan-400 transition-colors relative group">
+                        Soluzioni
+                        <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-cyan-400 transition-all group-hover:w-full"></span>
+                    </a>
+                    <a href="#contact" class="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full text-sm font-semibold text-white hover:shadow-lg hover:shadow-cyan-500/30 transition-all transform hover:scale-105">
+                        Contatta Esperti
+                    </a>
+                </div>
+
+                <button class="md:hidden text-gray-300 hover:text-white" onclick="toggleMobileMenu()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden glass-panel border-t border-gray-800">
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <a href="#services" class="block px-3 py-2 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-all">Servizi</a>
+                <a href="#threats" class="block px-3 py-2 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-all">Threat Intelligence</a>
+                <a href="#solutions" class="block px-3 py-2 text-gray-300 hover:text-cyan-400 hover:bg-white/5 rounded-lg transition-all">Soluzioni</a>
+                <a href="#contact" class="block px-3 py-2 text-cyan-400 font-semibold">Contatta Esperti →</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section with Three.js Background -->
+    <section class="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <div id="canvas-container" class="absolute inset-0 z-0"></div>
+        <div class="cyber-grid absolute inset-0 z-0"></div>
+        <div class="scan-line z-10"></div>
+        
+        <div class="relative z-20 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <div class="inline-flex items-center px-4 py-2 rounded-full glass-panel mb-8 animate-fade-in-up">
+                <span class="flex h-2 w-2 relative mr-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                </span>
+                <span class="text-xs font-mono text-cyan-400 tracking-widest uppercase">Sistema di Protezione Attivo 24/7</span>
+            </div>
+            
+            <h1 class="text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight">
+                <span class="glitch block mb-2" data-text="CYBER">CYBER</span>
+                <span class="block gradient-text italic">DEFENSE</span>
+                <span class="block text-white text-3xl md:text-5xl mt-4 font-light typing-text" id="hero-typing"></span>
+            </h1>
+            
+            <p class="mt-8 max-w-2xl mx-auto text-lg md:text-xl text-gray-400 leading-relaxed reveal-section">
+                Proteggiamo il tuo business con intelligenza artificiale avanzata e monitoraggio continuo. 
+                <span class="text-cyan-400 font-semibold">Zero compromessi</span>, massima sicurezza.
+            </p>
+            
+            <div class="mt-12 flex flex-col sm:flex-row gap-4 justify-center reveal-section">
+                <button class="group relative px-8 py-4 bg-cyan-500 rounded-lg overflow-hidden transition-all hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/25">
+                    <div class="absolute inset-0 bg-gradient-to-r from-cyan-400 to-blue-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span class="relative flex items-center justify-center space-x-2 font-semibold text-black">
+                        <span>Inizia Valutazione</span>
+                        <svg class="w-5 h-5 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+                        </svg>
+                    </span>
+                </button>
+                <button class="px-8 py-4 glass-panel rounded-lg text-white font-semibold hover:bg-white/10 transition-all border border-white/20 hover:border-cyan-400/50">
+                    Guarda Demo
+                </button>
+            </div>
+
+            <!-- Stats -->
+            <div class="mt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto reveal-section">
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-white font-mono counter" data-target="99.9">0</div>
+                    <div class="text-sm text-gray-500 mt-1">% Uptime</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-white font-mono counter" data-target="24">0</div>
+                    <div class="text-sm text-gray-500 mt-1">/7 Monitoring</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-white font-mono counter" data-target="0">0</div>
+                    <div class="text-sm text-gray-500 mt-1">Breach Data</div>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl md:text-4xl font-bold text-white font-mono counter" data-target="500">0</div>
+                    <div class="text-sm text-gray-500 mt-1">+ Clienti</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scroll Indicator -->
+        <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-bounce">
+            <svg class="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section id="services" class="relative py-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20 reveal-section">
+                <h2 class="text-sm font-mono text-cyan-400 tracking-widest uppercase mb-4">[ NOSTRI SERVIZI ]</h2>
+                <h3 class="text-4xl md:text-5xl font-bold text-white mb-6">Soluzioni Enterprise</h3>
+                <p class="text-gray-400 max-w-2xl mx-auto">Architettura di sicurezza multilivello per proteggere ogni aspetto della tua infrastruttura digitale.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Service Card 1 -->
+                <div class="service-card glass-panel rounded-2xl p-8 relative overflow-hidden group cursor-pointer reveal-section">
+                    <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-cyan-400 to-blue-600 flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-cyan-400 transition-colors">Managed Security</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">SOC as a Service con analisti certificati che monitorano la tua infrastruttura 24/7/365.</p>
+                        <div class="flex items-center text-cyan-400 text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            Scopri di più <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-cyan-500/20 rounded-full blur-3xl group-hover:bg-cyan-500/30 transition-all"></div>
+                </div>
+
+                <!-- Service Card 2 -->
+                <div class="service-card glass-panel rounded-2xl p-8 relative overflow-hidden group cursor-pointer reveal-section" style="transition-delay: 100ms;">
+                    <div class="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-400 to-pink-600 flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11c0 3.517-1.009 6.799-2.753 9.571m-3.44-2.04l.054-.09A13.916 13.916 0 008 11a4 4 0 118 0c0 1.017-.07 2.019-.203 3m-2.118 6.844A21.88 21.88 0 0015.171 17m3.839 1.132c.645-2.266.99-4.659.99-7.132A8 8 0 008 4.07M3 15.364c.64-1.319 1-2.8 1-4.364 0-1.457.39-2.823 1.07-4"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-purple-400 transition-colors">Penetration Testing</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Test di intrusione etici condotti da ethical hacker certificati OWASP e OSCP.</p>
+                        <div class="flex items-center text-purple-400 text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            Scopri di più <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-purple-500/20 rounded-full blur-3xl group-hover:bg-purple-500/30 transition-all"></div>
+                </div>
+
+                <!-- Service Card 3 -->
+                <div class="service-card glass-panel rounded-2xl p-8 relative overflow-hidden group cursor-pointer reveal-section" style="transition-delay: 200ms;">
+                    <div class="absolute inset-0 bg-gradient-to-br from-green-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-green-400 transition-colors">Cloud Security</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Protezione avanzata per AWS, Azure e GCP con CSPM e CWPP integrati.</p>
+                        <div class="flex items-center text-green-400 text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            Scopri di più <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-green-500/20 rounded-full blur-3xl group-hover:bg-green-500/30 transition-all"></div>
+                </div>
+
+                <!-- Service Card 4 -->
+                <div class="service-card glass-panel rounded-2xl p-8 relative overflow-hidden group cursor-pointer reveal-section">
+                    <div class="absolute inset-0 bg-gradient-to-br from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-red-400 to-orange-600 flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-red-400 transition-colors">Incident Response</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Risposta immediata agli incidenti con team specializzati in threat containment.</p>
+                        <div class="flex items-center text-red-400 text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            Scopri di più <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-red-500/20 rounded-full blur-3xl group-hover:bg-red-500/30 transition-all"></div>
+                </div>
+
+                <!-- Service Card 5 -->
+                <div class="service-card glass-panel rounded-2xl p-8 relative overflow-hidden group cursor-pointer reveal-section" style="transition-delay: 100ms;">
+                    <div class="absolute inset-0 bg-gradient-to-br from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-yellow-400 transition-colors">Compliance</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">GDPR, ISO 27001, NIS2 e SOC 2. Automazione della conformità normativa.</p>
+                        <div class="flex items-center text-yellow-400 text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            Scopri di più <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-yellow-500/20 rounded-full blur-3xl group-hover:bg-yellow-500/30 transition-all"></div>
+                </div>
+
+                <!-- Service Card 6 -->
+                <div class="service-card glass-panel rounded-2xl p-8 relative overflow-hidden group cursor-pointer reveal-section" style="transition-delay: 200ms;">
+                    <div class="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div class="relative z-10">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center mb-6 transform group-hover:scale-110 transition-transform">
+                            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                            </svg>
+                        </div>
+                        <h4 class="text-xl font-bold text-white mb-3 group-hover:text-blue-400 transition-colors">AI Defense</h4>
+                        <p class="text-gray-400 text-sm leading-relaxed mb-4">Machine Learning per il rilevamento proattivo delle minacce zero-day.</p>
+                        <div class="flex items-center text-blue-400 text-sm font-semibold group-hover:translate-x-2 transition-transform">
+                            Scopri di più <span class="ml-2">→</span>
+                        </div>
+                    </div>
+                    <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-500/20 rounded-full blur-3xl group-hover:bg-blue-500/30 transition-all"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive Threat Map Section -->
+    <section id="threats" class="relative py-32 bg-black/50 overflow-hidden">
+        <div class="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%2300f3ff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-20"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div class="reveal-section">
+                    <h2 class="text-sm font-mono text-red-400 tracking-widest uppercase mb-4">[ THREAT INTELLIGENCE ]</h2>
+                    <h3 class="text-4xl md:text-5xl font-bold text-white mb-6">Monitoraggio Minacce <span class="text-red-500">Realtime</span></h3>
+                    <p class="text-gray-400 text-lg mb-8 leading-relaxed">
+                        Il nostro Security Operations Center analizza milioni di eventi al secondo. 
+                        Identifichiamo e neutralizziamo le minacce prima che raggiungano la tua infrastruttura.
+                    </p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-start space-x-4">
+                            <div class="w-2 h-2 rounded-full bg-red-500 mt-2 animate-pulse"></div>
+                            <div>
+                                <h4 class="text-white font-semibold mb-1">Rilevamento Zero-Day</h4>
+                                <p class="text-gray-500 text-sm">Algoritmi avanzati identificano vulnerabilità sconosciute</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-2 h-2 rounded-full bg-orange-500 mt-2 animate-pulse" style="animation-delay: 0.5s;"></div>
+                            <div>
+                                <h4 class="text-white font-semibold mb-1">Threat Hunting Proattivo</h4>
+                                <p class="text-gray-500 text-sm">Ricerca attiva di indicatori di compromissione</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start space-x-4">
+                            <div class="w-2 h-2 rounded-full bg-yellow-500 mt-2 animate-pulse" style="animation-delay: 1s;"></div>
+                            <div>
+                                <h4 class="text-white font-semibold mb-1">Intelligence Feed Globale</h4>
+                                <p class="text-gray-500 text-sm">Database di minacce aggiornato in tempo reale</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-10 flex items-center space-x-8">
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-red-500 font-mono" id="threat-counter">0</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Minacce bloccate oggi</div>
+                        </div>
+                        <div class="h-12 w-px bg-gray-800"></div>
+                        <div class="text-center">
+                            <div class="text-3xl font-bold text-cyan-400 font-mono" id="response-time">&lt;15s</div>
+                            <div class="text-xs text-gray-500 uppercase tracking-wider">Tempo di risposta</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Map Visualization -->
+                <div class="relative h-[500px] glass-panel rounded-2xl overflow-hidden reveal-section">
+                    <div class="absolute inset-0 bg-gradient-to-br from-gray-900 to-black"></div>
+                    <!-- Simulated Map Points -->
+                    <div class="absolute inset-0" id="threat-map">
+                        <!-- Dynamic threat points will be added here by JS -->
+                    </div>
+                    <div class="absolute bottom-4 left-4 right-4 glass-panel rounded-lg p-4">
+                        <div class="flex justify-between items-center text-xs font-mono">
+                            <span class="text-gray-400">LIVE FEED</span>
+                            <span class="text-green-400 flex items-center">
+                                <span class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></span>
+                                CONNECTED
+                            </span>
+                        </div>
+                        <div class="mt-2 space-y-1" id="threat-log">
+                            <!-- Dynamic logs -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Solutions Showcase -->
+    <section id="solutions" class="relative py-32 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-20 reveal-section">
+                <h2 class="text-sm font-mono text-cyan-400 tracking-widest uppercase mb-4">[ PIATTAFORMA ]</h2>
+                <h3 class="text-4xl md:text-5xl font-bold text-white mb-6">Tecnologia di Punta</h3>
+            </div>
+
+            <!-- Feature Tabs -->
+            <div class="flex flex-wrap justify-center gap-4 mb-12 reveal-section">
+                <button class="tab-btn px-6 py-3 rounded-full glass-panel text-white hover:bg-cyan-500/20 transition-all border border-cyan-500/30 active" data-tab="dashboard">
+                    Security Dashboard
+                </button>
+                <button class="tab-btn px-6 py-3 rounded-full glass-panel text-gray-400 hover:bg-cyan-500/20 hover:text-white transition-all border border-transparent" data-tab="analysis">
+                    AI Analysis
+                </button>
+                <button class="tab-btn px-6 py-3 rounded-full glass-panel text-gray-400 hover:bg-cyan-500/20 hover:text-white transition-all border border-transparent" data-tab="reports">
+                    Automated Reports
+                </button>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="relative glass-panel rounded-3xl p-8 md:p-12 reveal-section">
+                <div class="tab-content active" id="dashboard">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <h4 class="text-2xl font-bold text-white mb-4">Unified Security Dashboard</h4>
+                            <p class="text-gray-400 mb-6">Visualizza lo stato di sicurezza dell'intera infrastruttura in un'unica interfaccia intuitiva. Drill-down avanzato e correlazione automatica degli eventi.</p>
+                            <ul class="space-y-3">
+                                <li class="flex items-center text-gray-300">
+                                    <svg class="w-5 h-5 text-cyan-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Single Pane of Glass
+                                </li>
+                                <li class="flex items-center text-gray-300">
+                                    <svg class="w-5 h-5 text-cyan-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    Custom Alerting
+                                </li>
+                                <li class="flex items-center text-gray-300">
+                                    <svg class="w-5 h-5 text-cyan-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                    API Integration
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="relative rounded-xl overflow-hidden bg-gray-900 border border-gray-800 p-6 shadow-2xl">
+                            <div class="flex items-center justify-between mb-4 border-b border-gray-800 pb-4">
+                                <div class="flex space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <div class="text-xs text-gray-500 font-mono">nexus-dashboard.exe</div>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="h-2 bg-gray-800 rounded w-3/4 animate-pulse"></div>
+                                <div class="h-2 bg-gray-800 rounded w-1/2 animate-pulse" style="animation-delay: 0.2s"></div>
+                                <div class="grid grid-cols-3 gap-3 mt-6">
+                                    <div class="h-20 bg-gradient-to-br from-cyan-500/20 to-transparent rounded border border-cyan-500/30"></div>
+                                    <div class="h-20 bg-gradient-to-br from-purple-500/20 to-transparent rounded border border-purple-500/30"></div>
+                                    <div class="h-20 bg-gradient-to-br from-green-500/20 to-transparent rounded border border-green-500/30"></div>
+                                </div>
+                                <div class="h-32 bg-gray-800/50 rounded mt-4 border border-gray-700 relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-cyan-500/10 to-transparent -skew-x-12 animate-shimmer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="relative py-32 overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-cyan-900/20 to-purple-900/20"></div>
+        <div class="absolute inset-0" style="background-image: radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.1) 0%, transparent 50%);"></div>
+        
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center relative z-10 reveal-section">
+            <h2 class="text-5xl md:text-6xl font-bold text-white mb-8">Pronti a proteggere<br>il tuo business?</h2>
+            <p class="text-xl text-gray-400 mb-12">Ottieni una valutazione gratuita della tua postura di sicurezza. Nessun impegno, risultati concreti.</p>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="px-8 py-4 bg-white text-black rounded-lg font-bold hover:bg-cyan-50 transition-all transform hover:scale-105 shadow-2xl shadow-white/10">
+                    Inizia Ora
+                </button>
+                <button class="px-8 py-4 glass-panel rounded-lg text-white font-semibold hover:bg-white/10 transition-all border border-white/20">
+                    Parla con un Esperto
+                </button>
+            </div>
+
+            <div class="mt-16 flex justify-center items-center space-x-8 opacity-50 grayscale hover:grayscale-0 transition-all">
+                <div class="text-2xl font-bold text-gray-400">AWS</div>
+                <div class="text-2xl font-bold text-gray-400">Azure</div>
+                <div class="text-2xl font-bold text-gray-400">Google Cloud</div>
+                <div class="text-2xl font-bold text-gray-400">CrowdStrike</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="relative py-32 bg-black/80">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                <div class="reveal-section">
+                    <h2 class="text-sm font-mono text-cyan-400 tracking-widest uppercase mb-4">[ CONTATTI ]</h2>
+                    <h3 class="text-4xl font-bold text-white mb-6">Parliamo di Sicurezza</h3>
+                    <p class="text-gray-400 mb-8">Il nostro team di esperti è disponibile 24/7 per supportarti in caso di emergenza o per discutere delle tue esigenze di sicurezza.</p>
+                    
+                    <div class="space-y-6">
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30">
+                                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="text-white font-semibold">Email</div>
+                                <div class="text-gray-400">security@nexussec.com</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-4">
+                            <div class="w-12 h-12 rounded-full bg-cyan-500/10 flex items-center justify-center border border-cyan-500/30">
+                                <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                            </div>
+                            <div>
+                                <div class="text-white font-semibold">24/7 SOC</div>
+                                <div class="text-gray-400">+39 02 1234 5678</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-panel rounded-2xl p-8 reveal-section">
+                    <form class="space-y-6" onsubmit="event.preventDefault(); alert('Grazie per il tuo interesse! Ti contatteremo presto.');">
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Nome</label>
+                                <input type="text" class="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white focus:border-cyan-400 focus:outline-none transition-colors" placeholder="Mario">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-400 mb-2">Cognome</label>
+                                <input type="text" class="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white focus:border-cyan-400 focus:outline-none transition-colors" placeholder="Rossi">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Email Aziendale</label>
+                            <input type="email" class="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white focus:border-cyan-400 focus:outline-none transition-colors" placeholder="mario.rossi@azienda.it">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-400 mb-2">Messaggio</label>
+                            <textarea rows="4" class="w-full px-4 py-3 bg-black/50 border border-gray-700 rounded-lg text-white focus:border-cyan-400 focus:outline-none transition-colors" placeholder="Descrivi le tue esigenze di sicurezza..."></textarea>
+                        </div>
+                        <button type="submit" class="w-full py-4 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-lg text-white font-bold hover:shadow-lg hover:shadow-cyan-500/25 transition-all transform hover:scale-[1.02]">
+                            Invia Richiesta
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-gray-800 bg-black py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="col-span-1 md:col-span-2">
+                    <div class="flex items-center space-x-2 mb-4">
+                        <div class="w-8 h-8 bg-gradient-to-br from-cyan-400 to-purple-600 rounded-lg transform rotate-45"></div>
+                        <span class="font-bold text-xl text-white">NEXUS<span class="text-cyan-400">SEC</span></span>
+                    </div>
+                    <p class="text-gray-500 text-sm max-w-sm">Proteggiamo le aziende italiane dalle minacce cyber con soluzioni innovative e team di esperti certificati.</p>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Servizi</h4>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Managed Security</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Penetration Testing</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Cloud Security</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Incident Response</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-semibold mb-4">Azienda</h4>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Chi Siamo</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Carriere</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Blog</a></li>
+                        <li><a href="#" class="hover:text-cyan-400 transition-colors">Contatti</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-600 text-sm">&copy; 2024 Nexus Security. Tutti i diritti riservati.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-600 hover:text-cyan-400 transition-colors">Privacy Policy</a>
+                    <a href="#" class="text-gray-600 hover:text-cyan-400 transition-colors">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Register GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Loading Screen
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            const loaderTexts = [
+                "Loading modules...",
+                "Initializing encryption...",
+                "Connecting to SOC...",
+                "System ready."
+            ];
+            let i = 0;
+            const interval = setInterval(() => {
+                if (i < loaderTexts.length) {
+                    document.getElementById('loader-text').textContent = loaderTexts[i];
+                    i++;
+                }
+            }, 400);
+            
+            setTimeout(() => {
+                gsap.to(loader, {
+                    opacity: 0,
+                    duration: 0.8,
+                    onComplete: () => {
+                        loader.style.display = 'none';
+                        initAnimations();
+                    }
+                });
+            }, 2000);
+        });
+
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        const cursorDot = document.getElementById('cursor-dot');
+        
+        document.addEventListener('mousemove', (e) => {
+            if (cursor && cursorDot) {
+                cursor.style.left = e.clientX - 10 + 'px';
+                cursor.style.top = e.clientY - 10 + 'px';
+                cursorDot.style.left = e.clientX - 2 + 'px';
+                cursorDot.style.top = e.clientY - 2 + 'px';
+            }
+        });
+
+        document.addEventListener('mousedown', () => {
+            if (cursor) cursor.style.transform = 'scale(0.8)';
+        });
+
+        document.addEventListener('mouseup', () => {
+            if (cursor) cursor.style.transform = 'scale(1)';
+        });
+
+        // Three.js Background
+        function initThreeJS() {
+            const container = document.getElementById('canvas-container');
+            if (!container) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+            
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            container.appendChild(renderer.domElement);
+
+            // Create particles
+            const particlesGeometry = new THREE.BufferGeometry();
+            const particlesCount = 1500;
+            const posArray = new Float32Array(particlesCount * 3);
+            const colorArray = new Float32Array(particlesCount * 3);
+
+            for(let i = 0; i < particlesCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * 50;
+                posArray[i+1] = (Math.random() - 0.5) * 50;
+                posArray[i+2] = (Math.random() - 0.5) * 50;
+                
+                // Cyan to purple gradient
+                colorArray[i] = Math.random() * 0.5 + 0.5;     // R
+                colorArray[i+1] = Math.random() * 0.8 + 0.2;   // G
+                colorArray[i+2] = 1;                           // B
+            }
+
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particlesGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+            const particlesMaterial = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particlesMesh);
+
+            // Add connecting lines
+            const linesGeometry = new THREE.BufferGeometry();
+            const linesMaterial = new THREE.LineBasicMaterial({
+                color: 0x00f3ff,
+                transparent: true,
+                opacity: 0.1
+            });
+
+            camera.position.z = 30;
+
+            let mouseX = 0;
+            let mouseY = 0;
+
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            });
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+
+                particlesMesh.rotation.x += 0.0005;
+                particlesMesh.rotation.y += 0.0005;
+                
+                // Mouse interaction
+                particlesMesh.rotation.x += mouseY * 0.0005;
+                particlesMesh.rotation.y += mouseX * 0.0005;
+
+                renderer.render(scene, camera);
+            };
+
+            animate();
+
+            window.addEventListener('resize', () => {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            });
+        }
+
+        // Binary Rain Effect
+        function initBinaryRain() {
+            const canvas = document.getElementById('binary-canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const binary = '010101010101010101010101010101010101010101010101010101';
+            const fontSize = 14;
+            const columns = canvas.width / fontSize;
+            const drops = [];
+
+            for (let i = 0; i < columns; i++) {
+                drops[i] = Math.random() * -100;
+            }
+
+            function draw() {
+                ctx.fillStyle = 'rgba(5, 5, 8, 0.05)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                ctx.fillStyle = '#00f3ff';
+                ctx.font = fontSize + 'px monospace';
+
+                for (let i = 0; i < drops.length; i++) {
+                    const text = binary[Math.floor(Math.random() * binary.length)];
+                    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+                    if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                        drops[i] = 0;
+                    }
+                    drops[i]++;
+                }
+            }
+
+            setInterval(draw, 50);
+
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
+        }
+
+        // Typing Effect
+        function typeWriter() {
+            const text = "Next Generation Protection";
+            const element = document.getElementById('hero-typing');
+            let i = 0;
+            
+            function type() {
+                if (i < text.length) {
+                    element.textContent += text.charAt(i);
+                    i++;
+                    setTimeout(type, 100);
+                }
+            }
+            
+            setTimeout(type, 1000);
+        }
+
+        // Threat Map Simulation
+        function initThreatMap() {
+            const map = document.getElementById('threat-map');
+            const log = document.getElementById('threat-log');
+            const counter = document.getElementById('threat-counter');
+            let count = 1247;
+
+            function createThreat() {
+                const dot = document.createElement('div');
+                dot.className = 'absolute w-2 h-2 bg-red-500 rounded-full animate-ping';
+                dot.style.left = Math.random() * 100 + '%';
+                dot.style.top = Math.random() * 100 + '%';
+                map.appendChild(dot);
+
+                const pulse = document.createElement('div');
+                pulse.className = 'threat-pulse';
+                pulse.style.left = dot.style.left;
+                pulse.style.top = dot.style.top;
+                pulse.style.width = '20px';
+                pulse.style.height = '20px';
+                pulse.style.marginLeft = '-10px';
+                pulse.style.marginTop = '-10px';
+                map.appendChild(pulse);
+
+                setTimeout(() => {
+                    dot.remove();
+                    pulse.remove();
+                }, 2000);
+
+                // Update counter
+                count += Math.floor(Math.random() * 3);
+                counter.textContent = count.toLocaleString();
+
+                // Add log entry
+                const threats = ['Malware detected', 'Intrusion attempt blocked', 'Phishing prevented', 'DDoS mitigated', 'SQL Injection blocked'];
+                const countries = ['USA', 'China', 'Russia', 'Brazil', 'Germany', 'India'];
+                const entry = document.createElement('div');
+                entry.className = 'text-xs font-mono text-gray-500 flex justify-between';
+                entry.innerHTML = `<span class="text-red-400">[ALERT]</span> <span>${threats[Math.floor(Math.random() * threats.length)]}</span> <span class="text-gray-600">${countries[Math.floor(Math.random() * countries.length)]}</span>`;
+                log.prepend(entry);
+                if (log.children.length > 4) log.lastChild.remove();
+            }
+
+            setInterval(createThreat, 1500);
+        }
+
+        // Counter Animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.counter');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-target'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+
+                const updateCounter = () => {
+                    current += step;
+                    if (current < target) {
+                        counter.textContent = Math.floor(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+
+                ScrollTrigger.create({
+                    trigger: counter,
+                    start: 'top 80%',
+                    onEnter: () => updateCounter()
+                });
+            });
+        }
+
+        // Scroll Animations
+        function initAnimations() {
+            // Reveal sections
+            gsap.utils.toArray('.reveal-section').forEach(section => {
+                gsap.fromTo(section, 
+                    { opacity: 0, y: 50 },
+                    {
+                        opacity: 1,
+                        y: 0,
+                        duration: 1,
+                        ease: "power3.out",
+                        scrollTrigger: {
+                            trigger: section,
+                            start: "top 85%",
+                            toggleActions: "play none none reverse"
+                        }
+                    }
+                );
+            });
+
+            // Parallax for hero
+            gsap.to(".cyber-grid", {
+                yPercent: 50,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: "body",
+                    start: "top top",
+                    end: "bottom top",
+                    scrub: true
+                }
+            });
+        }
+
+        // Tab Switching
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('active', 'border-cyan-500/30', 'text-white');
+                    b.classList.add('border-transparent', 'text-gray-400');
+                });
+                this.classList.add('active', 'border-cyan-500/30', 'text-white');
+                this.classList.remove('border-transparent', 'text-gray-400');
+            });
+        });
+
+        // Mobile Menu
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Initialize everything
+        window.addEventListener('DOMContentLoaded', () => {
+            initThreeJS();
+            initBinaryRain();
+            typeWriter();
+            initThreatMap();
+            animateCounters();
+        });
+
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
